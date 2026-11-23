@@ -20,7 +20,7 @@ class SafetyRegressions(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         self.home = self.root / "state"
         self.patcher = mock.patch.multiple(ma, APP_DIR=self.home, SETTINGS=self.home / "settings.json", DB_PATH=self.home / "history.sqlite3")
         self.patcher.start()
