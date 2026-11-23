@@ -1,0 +1,65 @@
+name: MediaHarbor 自动化测试
+
+on:
+  push:
+    branches: [main, 'feat/**', 'fix/**', 'ci/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mediaharbor-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-tests:
+    name: 单元测试 · ${{ matrix.os }} · Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+        python: ['3.9', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - name: 独立虚拟环境 · 语法检查和 26 项回归测试
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv .venv
+          .venv/bin/python --version
+          .venv/bin/python -m compileall -q media_archive.py installer.py tests
+          .venv/bin/python -m unittest discover -s tests -v
+          bash -n 安装.command 管理设置.command scripts/ci-macos-diskimage.sh
+      - name: macOS · 校验 launchd plist 格式
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          .venv/bin/python - <<'PY'
+          import installer
+          import plistlib
+          from pathlib import Path
+          p = Path('mediaharbor-agent.plist')
+          p.write_bytes(plistlib.dumps(installer.agent_plist(Path('/usr/bin/python3'), Path('/tmp/media_archive.py'), Path('/tmp'))))
+          PY
+          plutil -lint mediaharbor-agent.plist
+
+  macos-disk-image:
+    name: macOS 虚拟 SD 卡 · 真实挂载与端到端导入
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: 使用独立虚拟环境和 hdiutil 磁盘镜像验收
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv .venv
+          PYTHON="$PWD/.venv/bin/python" bash scripts/ci-macos-diskimage.sh
