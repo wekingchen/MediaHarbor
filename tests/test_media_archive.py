@@ -15,7 +15,7 @@ class ImportTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        root = Path(self.tmp.name)
+        root = Path(self.tmp.name).resolve()
         self.home = root / "app"
         self.target = root / "archive"
         self.source = root / "usb"
