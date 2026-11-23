@@ -434,8 +434,11 @@ def ensure_destination_folder(target: Path, *parts: str):
 
 
 def import_one(con, cfg, target, src):
-    # The destination might have been unplugged since the import began.
-    checked_target(cfg)
+    # macOS /var may resolve to /private/var. Compare canonical paths.
+    actual_target = checked_target(cfg)
+    if target.resolve(strict=True) != actual_target:
+        raise ImportErrorSafe("传入的归档目标与当前配置不一致")
+    target = actual_target
     initial = src.stat()
     if not src.is_file() or src.is_symlink():
         return "skipped", 0
@@ -478,6 +481,10 @@ def import_one(con, cfg, target, src):
 
 
 def import_source(con, cfg, target, source: Path):
+    actual_target = checked_target(cfg)
+    if target.resolve(strict=True) != actual_target:
+        raise ImportErrorSafe("传入的归档目标与当前配置不一致")
+    target = actual_target
     source = source.resolve(strict=True)
     if not source.is_dir() or source == Path("/"):
         raise ImportErrorSafe("来源必须是有效的目录。")
