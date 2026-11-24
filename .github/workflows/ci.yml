@@ -36,6 +36,12 @@ jobs:
           .venv/bin/python -m compileall -q media_archive.py installer.py tests
           .venv/bin/python -m unittest discover -s tests -v
           bash -n 安装.command 管理设置.command scripts/ci-macos-diskimage.sh
+      - name: macOS · 记录真实系统版本与处理器架构
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          sw_vers
+          uname -m
       - name: macOS · 校验 launchd plist 格式
         if: runner.os == 'macOS'
         shell: bash
