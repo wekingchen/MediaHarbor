@@ -16,17 +16,18 @@
 
 ### 前提条件
 
-- macOS 26/27 或其他支持 `launchd StartOnMount` 的 macOS 版本。
+- **macOS 15（Sequoia）及更新版本**。已在 GitHub Actions 的 macOS 15 Intel Runner 完成自动化测试；**macOS 15.7.9** 可使用相同的 `launchd StartOnMount` 触发机制，但仍需在本人 Mac 上验证真实插卡触发和隐私权限。
 - **Python 3.9 或更新版本**：在终端运行 `python3 --version` 检查。macOS 不保证每台机器都自带可运行的 Python 3。没有时可以从 [python.org](https://www.python.org/downloads/macos/) 安装，或使用 Homebrew 安装 Python。
 - 安装时需要已经创建并挂载目标保存文件夹。**不需要 sudo 或管理员权限**。
 - 可选：安装 ExifTool，有助于更准确读取多种相机和视频的拍摄日期（Homebrew：`brew install exiftool`）。没有 ExifTool 也可以运行。
 
 ### 最简单安装方法
 
-解压压缩包，用「终端」进入解压目录，例如：
+使用「终端」从 GitHub 获取并安装最新版，例如（如果没有 Git，可下载仓库 ZIP，解压后进入解压目录运行 `bash ./安装.command`）：
 
 ```bash
-cd ~/Downloads/MediaAutoArchive-MVP
+git clone https://github.com/wekingchen/MediaHarbor.git
+cd MediaHarbor
 bash ./安装.command
 ```
 
